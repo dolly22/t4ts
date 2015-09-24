@@ -28,12 +28,16 @@ namespace T4TS
             {
                 if (pi.FileCodeModel != null)
                 {
-                    var codeElements = pi.FileCodeModel.CodeElements;
-                    
-                    foreach (object elem in codeElements)
+                    if (CodeTraverser.Settings.ProjectNamesToProcess == null ||
+                        CodeTraverser.Settings.ProjectNamesToProcess.Contains(pi.ContainingProject.Name))
                     {
-                        if (elem is CodeNamespace)
-                            WithNamespace((CodeNamespace)elem);
+                        var codeElements = pi.FileCodeModel.CodeElements;
+                        
+                        foreach (object elem in codeElements)
+                        {
+                            if (elem is CodeNamespace)
+                                WithNamespace((CodeNamespace)elem);
+                        }
                     }
                 }
 
