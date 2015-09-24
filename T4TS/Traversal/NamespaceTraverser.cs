@@ -7,8 +7,9 @@ namespace T4TS
     public class NamespaceTraverser
     {
         public Action<CodeClass> WithCodeClass { get; private set; }
+        public Action<CodeEnum> WithCodeEnum { get; private set; }
 
-        public NamespaceTraverser(CodeNamespace ns, Action<CodeClass> withCodeClass)
+        public NamespaceTraverser(CodeNamespace ns, Action<CodeClass> withCodeClass, Action<CodeEnum> withCodeEnum)
         {
             if (ns == null)
                 throw new ArgumentNullException("ns");
@@ -17,6 +18,8 @@ namespace T4TS
                 throw new ArgumentNullException("withCodeClass");
             
             WithCodeClass = withCodeClass;
+
+            WithCodeEnum = withCodeEnum;
             
             if (ns.Members != null)
                 Traverse(ns.Members);
@@ -26,6 +29,8 @@ namespace T4TS
         {
             foreach (object elem in members)
             {
+                if (elem is CodeEnum)
+                    WithCodeEnum((CodeEnum)elem);
                 if (elem is CodeClass)
                     WithCodeClass((CodeClass)elem);
             }

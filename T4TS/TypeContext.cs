@@ -9,36 +9,52 @@ namespace T4TS
         public Settings Settings { get; private set; }
         public TypeContext(Settings settings)
         {
-            this.Settings = settings;
+            Settings = settings;
         }
 
-        private static readonly string[] genericCollectionTypeStarts = new string[] {
+        private static readonly string[] _genericCollectionTypeStarts =
+        {
             "System.Collections.Generic.List<",
             "System.Collections.Generic.IList<",
             "System.Collections.Generic.ICollection<",
             "System.Collections.Generic.IEnumerable<"
         };
 
-        private static readonly string nullableTypeStart = "System.Nullable<";
+        private const string NullableTypeStart = "System.Nullable<";
 
         /// <summary>
         /// Lookup table for "interface types", ie. non-builtin types (typically classes or unknown types). Keyed on the FullName of the type.
         /// </summary>
-        private Dictionary<string, InterfaceType> interfaceTypes = new Dictionary<string, InterfaceType>();
+        private readonly Dictionary<string, InterfaceType> _interfaceTypes = new Dictionary<string, InterfaceType>();
+
+        private readonly Dictionary<string, EnumType> _enumTypes = new Dictionary<string, EnumType>();
 
         public void AddInterfaceType(string typeFullName, InterfaceType interfaceType)
         {
-            interfaceTypes.Add(typeFullName, interfaceType);
+            _interfaceTypes.Add(typeFullName, interfaceType);
+        }
+        public void AddEnumType(string typeFullName, EnumType enumType)
+        {
+            _enumTypes.Add(typeFullName, enumType);
         }
 
         public bool TryGetInterfaceType(string typeFullName, out InterfaceType interfaceType)
         {
-            return interfaceTypes.TryGetValue(typeFullName, out interfaceType);
+            return _interfaceTypes.TryGetValue(typeFullName, out interfaceType);
+        }
+
+        public bool TryGetEnumType(string typeFullName, out EnumType enumType)
+        {
+            return _enumTypes.TryGetValue(typeFullName, out enumType);
         }
 
         public bool ContainsInterfaceType(string typeFullName)
         {
-            return interfaceTypes.ContainsKey(typeFullName);
+            return _interfaceTypes.ContainsKey(typeFullName);
+        }
+        public bool ContainsEnumType(string typeFullName)
+        {
+            return _enumTypes.ContainsKey(typeFullName);
         }
 
         public TypescriptType GetTypeScriptType(CodeTypeRef codeType)
@@ -70,7 +86,7 @@ namespace T4TS
         {
             if (codeType.TypeKind == vsCMTypeRef.vsCMTypeRefArray)
             {
-                return new ArrayType()
+                return new ArrayType
                 {
                     ElementType = GetTypeScriptType(codeType.ElementType)
                 };
@@ -83,8 +99,12 @@ namespace T4TS
         public TypescriptType GetTypeScriptType(string typeFullName)
         {
             InterfaceType interfaceType;
-            if (interfaceTypes.TryGetValue(typeFullName, out interfaceType))
+            if (_interfaceTypes.TryGetValue(typeFullName, out interfaceType))
                 return interfaceType;
+
+            EnumType enumType;
+            if (_enumTypes.TryGetValue(typeFullName, out enumType))
+                return enumType;
 
             if (IsGenericEnumerable(typeFullName))
             {
@@ -155,7 +175,7 @@ namespace T4TS
 
         private bool IsNullable(string typeFullName)
         {
-            return typeFullName.StartsWith(nullableTypeStart);
+            return typeFullName.StartsWith(NullableTypeStart);
         }
 
         public string UnwrapGenericType(string typeFullName)
@@ -164,9 +184,9 @@ namespace T4TS
             return typeFullName.Substring(firstIndex+1, typeFullName.Length - firstIndex- 2);
         }
 
-        public bool IsGenericEnumerable(string typeFullName)
+        public static bool IsGenericEnumerable(string typeFullName)
         {
-            return genericCollectionTypeStarts.Any(t => typeFullName.StartsWith(t));
+            return _genericCollectionTypeStarts.Any(typeFullName.StartsWith);
         }
     }
 }

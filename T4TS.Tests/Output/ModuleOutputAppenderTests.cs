@@ -62,6 +62,7 @@ namespace T4TS.Tests
 
             appender.AppendOutput(module);
             Assert.IsTrue(sb.ToString().StartsWith("declare module "));
+            Console.WriteLine(sb.ToString());
         }
     }
 }
