@@ -34,8 +34,10 @@ namespace T4TS.Tests.Traversal
 
             if (TryGetSingle(project.ProjectItems.GetEnumerator(), out projectItem))
             {
+
+
                 foreach (CodeNamespace ns in projectItem.FileCodeModel.CodeElements)
-                    new NamespaceTraverser(ns, (c) => { Assert.AreEqual(expectedNames[callCount++], c.Name); });
+                    new NamespaceTraverser(ns, (c) => { Assert.AreEqual(expectedNames[callCount++], c.Name); }, (c) => { Assert.AreEqual(expectedNames[callCount++], c.Name); });
             }
 
             Assert.AreEqual(2, callCount);
