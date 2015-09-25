@@ -43,7 +43,39 @@ namespace T4TS
         /// </summary>
         public bool UseNativeDates { get; set; }
 
-        public static Settings Parse(Dictionary<string,object> settingsValues)
+
+
+        /// <summary>
+        ///     If equals <c>true</c> - classes marked with <see cref="DataContractAttribute"/> will be processed.
+        /// </summary>
+        public bool ProcessDataContracts { get; set; }
+
+        /// <summary>
+        ///     If equals <c>true</c> - parent classes will be processed even if they weren't marked with <see cref="TypeScriptInterfaceAttribute"/> or <see cref="DataContractAttribute"/>.
+        /// </summary>
+        public bool ProcessParentClasses { get; set; }
+
+        /// <summary>
+        ///     Additional list of the additional attribute short names which prevents processing of the members. 
+        ///     If null - the properties marked with <see cref="JsonIgnoreAttribute"/> will be ignored.
+        /// </summary>
+        public string[] MemberIgnoreAttributes { get; set; }
+
+
+        /// <summary>
+        ///     If equals <c>true</c> - static properties will be processed. (Not implemented yet).
+        /// </summary>
+        public bool IncludeStatics { get; set; }
+
+        
+        public Settings()
+        {
+            DefaultModule = "T4TS";
+            MemberIgnoreAttributes = new[] {"JsonIgnoreAttribute"};
+        }
+
+
+        public static Settings Parse(Dictionary<string, object> settingsValues)
         {
             // Read settings from T4TS.tt.settings.tt
             return new Settings
@@ -53,7 +85,10 @@ namespace T4TS
                 DefaultCamelCaseMemberNames = ParseSettingNullableType(settingsValues, "DefaultCamelCaseMemberNames", false),
                 DefaultInterfaceNamePrefix = ParseSettingReferenceType(settingsValues, "DefaultInterfaceNamePrefix", s => s as string, string.Empty),
                 CompatibilityVersion = ParseSettingReferenceType(settingsValues, "CompatibilityVersion", v => v as Version, new Version(0, 9, 1, 1)),
-                UseNativeDates = ParseSettingNullableType(settingsValues, "UseNativeDates", false)
+                UseNativeDates = ParseSettingNullableType(settingsValues, "UseNativeDates", false),
+                ProcessParentClasses = ParseSettingNullableType(settingsValues, "ProcessParentClasses", false),
+                MemberIgnoreAttributes = ParseSettingReferenceType(settingsValues, "MemberIgnoreAttributes", s => s as string, "JsonIgnoreAttribute").Split(','),
+                IncludeStatics = ParseSettingNullableType(settingsValues, "IncludeStatics", false),
             };
         }
 
@@ -71,11 +106,7 @@ namespace T4TS
             object val;
             if (settingsValues.TryGetValue(key, out val))
             {
-                var nullable = val as Nullable<T>;
-                if (nullable == null || !nullable.HasValue)
-                    return defaultValue;
-
-                return nullable.Value;
+                return (val as T?) ?? defaultValue;
             }
 
             return defaultValue;
@@ -89,5 +120,6 @@ namespace T4TS
 
             return defaultValue;
         }
+
     }
 }

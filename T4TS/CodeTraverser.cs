@@ -1,6 +1,7 @@
 ﻿using EnvDTE;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace T4TS
@@ -27,7 +28,7 @@ namespace T4TS
         }
 
 
-        private void BuildCodeClass(TypeContext typeContext, CodeClass codeClass, CodeClass owner = null)
+        private void BuildCodeClass(TypeContext typeContext, CodeClass codeClass, CodeClass owner = null, bool forcedProcessing = false)
         {
             if (codeClass == null) return;
             CodeAttribute attribute;
@@ -38,19 +39,57 @@ namespace T4TS
                 if (tsType != null)
                     interfaceType = new InterfaceType(codeClass.Name);
             }
+            if (forcedProcessing)
+            {
+                var values = new TypeScriptInterfaceAttributeValues
+                {
+                    Name = codeClass.Name,
+                    Module = Settings.DefaultModule ?? "T4TS",
+                    NamePrefix = Settings.DefaultInterfaceNamePrefix ?? string.Empty
+                };
+                interfaceType = new InterfaceType(values);
+            }
+
             if (TryGetAttribute(codeClass.Attributes, InterfaceAttributeFullName, out attribute))
             {
                 var values = GetInterfaceValues(codeClass, attribute);
                 interfaceType = new InterfaceType(values);
             }
+            else if (Settings.ProcessDataContracts && TryGetAttribute(codeClass.Attributes, "System.Runtime.Serialization.DataContractAttribute", out attribute))
+            {
+                var values = new TypeScriptInterfaceAttributeValues
+                {
+                    Name = codeClass.Name,
+                    Module = Settings.DefaultModule ?? "T4TS",
+                    NamePrefix = Settings.DefaultInterfaceNamePrefix ?? string.Empty
+                };
+                interfaceType = new InterfaceType(values);
+            }
             if (interfaceType != null)
             {
+                // Process parent classes anyway if it has not TypeScriptAttribute or DataContractAttribute
+                if (Settings.ProcessParentClasses)
+                {
+                    CodeClass parentClass = null;
+                    if (codeClass.Bases.Count > 0)
+                        parentClass = codeClass.Bases.Item(1) as CodeClass;
+                    if (parentClass != null && parentClass.FullName != "System.Object")
+                    {
+                        BuildCodeClass(typeContext, parentClass, null, true);
+                    }
+                }
+
                 if (!typeContext.ContainsInterfaceType(codeClass.FullName))
                     typeContext.AddInterfaceType(codeClass.FullName, interfaceType);
-                foreach (var subCodeClass in codeClass.Members)
+
+                foreach (var subCodeElement in codeClass.Members)
                 {
-                    BuildCodeClass(typeContext, subCodeClass as CodeClass, codeClass);
-                    BuildCodeEnum(typeContext, subCodeClass as CodeEnum, codeClass);
+                    var subCodeClass = subCodeElement as CodeClass;
+                    if (subCodeClass != null && subCodeClass.Access == vsCMAccess.vsCMAccessPublic)
+                        BuildCodeClass(typeContext, subCodeClass, codeClass);
+                    var subCodeEnum = subCodeElement as CodeEnum;
+                    if (subCodeEnum != null && subCodeEnum.Access == vsCMAccess.vsCMAccessPublic)
+                        BuildCodeEnum(typeContext, subCodeEnum, codeClass);
                 }
             }
         }
@@ -160,7 +199,10 @@ namespace T4TS
                     var baseClass = baseClasses.Item(1);
                     if (baseClass != null)
                     {
-                        var parent = tsInterfaces.SingleOrDefault(intf => intf.FullName == baseClass.FullName);
+                        // We must remove all text after < char, to compare generic types.
+                        // It's not really correct, but must work in common cases.
+                        var baseClassNonGenericFullName = baseClass.FullName.Split('<')[0];
+                        TypeScriptInterface parent = tsInterfaces.SingleOrDefault(intf => baseClassNonGenericFullName == intf.FullName.Split('<')[0]);
                         if (parent != null)
                         {
                             tsMap[codeClass].Parent = parent;
@@ -198,7 +240,7 @@ namespace T4TS
             };
 
             // Add sub-classes to the interface
-            foreach (var codeSubClass in codeClass.Members.OfType<CodeClass>())
+            foreach (var codeSubClass in codeClass.Members.OfType<CodeClass>().Where(cc => cc.Access == vsCMAccess.vsCMAccessPublic))
             {
                 var subAttributeValues = new TypeScriptInterfaceAttributeValues { Name = codeSubClass.Name };
                 InterfaceType interfaceType;
@@ -214,7 +256,7 @@ namespace T4TS
             }
 
             // Add sub-enums to the interface
-            foreach (var codeSubEnum in codeClass.Members.OfType<CodeEnum>())
+            foreach (CodeEnum codeSubEnum in codeClass.Members.OfType<CodeEnum>().Where(cc => cc.Access == vsCMAccess.vsCMAccessPublic))
             {
                 var subAttributeValues = new TypeScriptEnumAttributeValues { Name = codeSubEnum.Name };
                 EnumType enumType;
@@ -261,11 +303,14 @@ namespace T4TS
             return tsEnum;
         }
 
-        private bool TryGetAttribute(CodeElements attributes, string attributeFullName, out CodeAttribute attribute)
+        private bool TryGetAttribute(CodeElements attributes, string attributeFullName, out CodeAttribute attribute, bool useShortAttributeName = false)
         {
             foreach (CodeAttribute attr in attributes)
             {
-                if (attr.FullName == attributeFullName)
+                var attrName = attr.FullName ?? "";
+                if (useShortAttributeName)
+                    attrName = attrName.Split('.').Last().Split('+').Last();
+                if (attrName == attributeFullName)
                 {
                     attribute = attr;
                     return true;
@@ -321,18 +366,16 @@ namespace T4TS
         private bool TryGetMember(CodeProperty property, TypeContext typeContext, out TypeScriptInterfaceMember member)
         {
             member = null;
-            if (property.Access != vsCMAccess.vsCMAccessPublic)
-                return false;
 
             var getter = property.Getter;
-            if (getter == null)
+            if (getter == null || property.Name == "this")
                 return false;
 
             var values = GetMemberValues(property, typeContext);
 
             member = new TypeScriptInterfaceMember
             {
-                Name = values.Name ?? property.Name,
+                Name = values.Name,
                 FullName = property.FullName,
                 Optional = values.Optional,
                 Ignore = values.Ignore,
@@ -340,6 +383,15 @@ namespace T4TS
                     ? typeContext.GetTypeScriptType(getter.Type)
                     : new InterfaceType(values.Type)
             };
+
+            if (member.Name == null)
+            {
+                // The property is not explicit marked with TypeScriptMemberAttribute
+                if (property.Access != vsCMAccess.vsCMAccessPublic)
+                    // remove non-public default properties
+                    return false;
+                member.Name = property.Name;
+            }
 
             if (member.Ignore)
             {
@@ -354,18 +406,23 @@ namespace T4TS
 
         private bool TryGetEnumMember(CodeVariable variable, TypeContext typeContext, int index, out TypeScriptEnumMember member)
         {
-            member = null;
-            if (variable.Access != vsCMAccess.vsCMAccessPublic)
-                return false;
-
             var values = GetMemberValues(variable, typeContext);
             member = new TypeScriptEnumMember
             {
-                Name = values.Name ?? variable.Name,
+                Name = values.Name,
                 FullName = variable.FullName,
                 Ignore = values.Ignore,
                 Value = variable.InitExpression == null ? index : Int32.Parse(variable.InitExpression.ToString()),
             };
+
+            if (member.Name == null)
+            {
+                // The property is not explicit marked with TypeScriptMemberAttribute
+                if (variable.Access != vsCMAccess.vsCMAccessPublic)
+                    // remove non-public default properties
+                    return false;
+                member.Name = variable.Name;
+            }
 
             if (member.Ignore)
             {
@@ -387,6 +444,13 @@ namespace T4TS
             string attributeType = null;
 
             CodeAttribute attribute;
+
+            // By default ignore properties marked with MemberIgnoreAttributes
+            if (Settings.MemberIgnoreAttributes.Any(a => TryGetAttribute(property.Attributes, a, out attribute, true)))
+            {
+                attributeIgnore = true;
+            }
+
             if (TryGetAttribute(property.Attributes, MemberAttributeFullName, out attribute))
             {
                 var values = GetAttributeValues(attribute);
@@ -399,7 +463,8 @@ namespace T4TS
                 if (values.ContainsKey("Ignore"))
                     attributeIgnore = values["Ignore"] == "true";
 
-                values.TryGetValue("Name", out attributeName);
+                if (!values.TryGetValue("Name", out attributeName))
+                    attributeName = property.Name;
                 values.TryGetValue("Type", out attributeType);
             }
 
@@ -422,6 +487,13 @@ namespace T4TS
             string attributeType = null;
 
             CodeAttribute attribute;
+
+            // By default ignore properties marked with MemberIgnoreAttributes
+            if (Settings.MemberIgnoreAttributes.Any(a => TryGetAttribute(variable.Attributes, a, out attribute, true)))
+            {
+                attributeIgnore = true;
+            }
+
             if (TryGetAttribute(variable.Attributes, MemberAttributeFullName, out attribute))
             {
                 var values = GetAttributeValues(attribute);

@@ -54,6 +54,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -68,14 +69,18 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="Output\BaseList.cs" />
+    <Compile Include="Mocks\BaseList.cs" />
     <Compile Include="Output\MemberOutputAppenderTests.cs" />
-    <Compile Include="Output\MockCodeTypes.cs" />
-    <Compile Include="Output\MockCodeElements.cs" />
-    <Compile Include="Output\MockProjectItems.cs" />
-    <Compile Include="Output\MockProjects.cs" />
-    <Compile Include="Output\MockSolution.cs" />
+    <Compile Include="Mocks\MockCodeTypes.cs" />
+    <Compile Include="Mocks\MockCodeElements.cs" />
+    <Compile Include="Mocks\MockProjectItems.cs" />
+    <Compile Include="Mocks\MockProjects.cs" />
+    <Compile Include="Mocks\MockSolution.cs" />
     <Compile Include="Output\ModuleOutputAppenderTests.cs" />
+    <Compile Include="Output\TestData\TestInheritedGeneric.cs" />
+    <Compile Include="Output\TestData\TestDataContract.cs" />
+    <Compile Include="Output\TestData\TestSubClasses.cs" />
+    <Compile Include="Output\TestData\TestData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -95,6 +100,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

@@ -35,8 +35,19 @@ readonly Dictionary<string, object> SettingsValues = new Dictionary<string, obje
     // Type: System.Version
     { "CompatibilityVersion", null },
 
-	// The default value for DateTime type translation.
-	// Type: bool?, defaults to false if not specified.
-    { "UseNativeDates", null }
+    // The default value for DateTime type translation.
+    // Type: bool?, defaults to false if not specified.
+    { "UseNativeDates", null },
+
+
+
+    // If equals true - classes marked with DataContractAttribute will be processed.
+    // Type: bool?, defaults to false if not specified.
+    { "ProcessDataContracts", true },
+
+    // If equals true - static properties will be processed.
+    // Type: bool?, defaults to false if not specified.
+    { "IncludeStatics", false },
+
 };
 #>

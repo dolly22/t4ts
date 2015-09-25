@@ -3,7 +3,7 @@ using EnvDTE;
 using Moq;
 using T4TS.Example.Models;
 
-namespace T4TS.Tests
+namespace T4TS.Tests.Mocks
 {
     class MockCodeElements : CodeElemens<CodeNamespace>
     {
