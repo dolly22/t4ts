@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using T4TS.Tests.Mocks;
 
 namespace T4TS.Tests.Utils
 {
@@ -34,8 +35,8 @@ namespace T4TS.Tests.Utils
 
         private string GenerateOutput()
         {
-            var solution = DTETransformer.BuildDteSolution(this.Types.ToArray());
-            var generator = new CodeTraverser(solution, this.Settings);
+            var solution = new MockSolution(Types.ToArray());
+            var generator = new CodeTraverser(solution.Object, this.Settings);
             var data = generator.GetAllInterfaces().ToList();
 
             return OutputFormatter.GetOutput(data, this.Settings);

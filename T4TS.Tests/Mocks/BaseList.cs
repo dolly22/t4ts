@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using EnvDTE;
 
-namespace T4TS.Tests
+namespace T4TS.Tests.Mocks
 {
     class BaseList<TItem> : List<TItem>
     {
@@ -36,7 +36,7 @@ namespace T4TS.Tests
     {
         public new CodeElement Item(object index)
         {
-            throw new NotImplementedException();
+            return (CodeElement)this[(int)index - 1];
         }
     }
 }
