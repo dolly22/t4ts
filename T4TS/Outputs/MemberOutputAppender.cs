@@ -12,6 +12,10 @@ namespace T4TS
 
         public override void AppendOutput(TypeScriptInterfaceMember member)
         {
+            //replace NewLine characters, so multiline comments will align nicely, and don't stick to the begining of the lines...
+            if(!string.IsNullOrWhiteSpace(member.Comment)) { AppendIndentedLine("/**  " + member.Comment.Replace(Environment.NewLine, Environment.NewLine + new string(' ', BaseIndentation) + "* ") + " */"); }
+            if(!string.IsNullOrWhiteSpace(member.DocComment)) { AppendIndentedLine("/**  " + member.DocComment.Replace(Environment.NewLine, Environment.NewLine + new string(' ', BaseIndentation) + "* ") + " */"); }
+
             AppendIndendation();
 
             var isOptional = member.Optional || (member.Type is NullableType);
@@ -24,7 +28,6 @@ namespace T4TS
                 else
                     type = "boolean";
             }
-
             Output.AppendFormat("{0}{1}: {2}",
                 member.Name,
                 (isOptional ? "?" : ""),

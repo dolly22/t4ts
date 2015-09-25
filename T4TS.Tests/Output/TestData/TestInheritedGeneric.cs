@@ -44,8 +44,7 @@ declare module T4TS {
     export interface Device extends T4TS.EntityObjectId {
         Name: string;
     }
-}
-";
+}";
 
         #endregion
     }

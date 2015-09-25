@@ -30,13 +30,15 @@ namespace T4TS.Tests.Mocks
 
             var el = As<CodeElement>();
             el.Setup(x => x.Name).Returns(type.Name.Split('`')[0]);
-            el.Setup(x => x.FullName).Returns(fullName); 
+            el.Setup(x => x.FullName).Returns(fullName);            
             Setup(x => x.Attributes).Returns(new MockAttributes(type.GetCustomAttributes(false).OfType<Attribute>()));
             Setup(x => x.Name).Returns(type.Name.Split('`')[0]);
             Setup(x => x.FullName).Returns(fullName);
             Setup(x => x.Members).Returns(new MockCodeProperties(type));
             Setup(x => x.Access).Returns(vsCMAccess.vsCMAccessPublic);
-
+            Setup(x => x.Comment).Returns(string.Empty);
+            Setup(x => x.DocComment).Returns(string.Empty);
+           
             var bases = new CodeElemens<CodeElement>();
             if (type.BaseType != null && type.BaseType != typeof(object))
             {
@@ -136,6 +138,9 @@ namespace T4TS.Tests.Mocks
                 Setup(x => x.Getter).Returns(new PropertyGetterMock(pi).Object);
             else
                 Setup(x => x.Getter).Returns((CodeFunction) null);
+
+            Setup(x => x.Comment).Returns(string.Empty);
+            Setup(x => x.DocComment).Returns(string.Empty);
         }
     }
 
