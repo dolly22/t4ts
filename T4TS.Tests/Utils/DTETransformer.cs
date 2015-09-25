@@ -258,7 +258,7 @@ namespace T4TS.Tests.Utils
         private static readonly string nullableTypeStart = "<";
 
 
-        private static string GetTypeFullname(string typeFullname)
+        internal static string GetTypeFullname(string typeFullname)
         {
             string wrapType = wrapTypes.FirstOrDefault(typeFullname.StartsWith);
             

@@ -26,6 +26,25 @@ const string ExpectedOutput = @"
 ****************************************************************************/
 
 declare module External1 {
+    /** Generated from T4TS.Example.Models.ModelFromDifferentProject+TestEnum **/
+    export module ModelFromDifferentProject {
+        enum TestEnum {
+            TheItem1 = 1,
+            Item2 = 2,
+            Item21 = 3,
+            Item22 = 4,
+            Item23 = 5,
+            Item3 = 5,
+            Item4 = 6,
+        }
+    }
+    /** Generated from T4TS.Example.Models.ModelFromDifferentProject+SubClass **/
+    export module ModelFromDifferentProject {
+        export interface TestSubClass {
+            Id: number;
+            Name: string;
+        }
+    }
     /** Generated from T4TS.Example.Models.ModelFromDifferentProject **/
     export interface ModelFromDifferentProject {
         Id: number;
@@ -37,12 +56,13 @@ declare module External1 {
         IntArray: number[];
         SelfArray: External1.ModelFromDifferentProject[];
         IsVisible: boolean;
-        IsOptional: boolean;
-        IntOptional: number;
+        IsOptional?: boolean;
+        IntOptional?: number;
         Self: External1.ModelFromDifferentProject;
-        EnumProp: any;
-        EnumPropNull: any;
-        EnumArray: any[];
+        EnumProp: External1.ModelFromDifferentProject.TestEnum;
+        EnumPropNull?: External1.ModelFromDifferentProject.TestEnum;
+        EnumArray: External1.ModelFromDifferentProject.TestEnum[];
+        SubClassRef: External1.ModelFromDifferentProject.TestSubClass;
     }
 }
 

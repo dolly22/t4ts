@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using EnvDTE;
 using Moq;
+using T4TS.Tests.Utils;
 
 namespace T4TS.Tests.Mocks
 {
@@ -25,12 +26,14 @@ namespace T4TS.Tests.Mocks
     {
         public MockCodeClass(Type type) : base(MockBehavior.Strict)
         {
+            var fullName = DTETransformer.GetTypeFullname(type.FullName);
+
             var el = As<CodeElement>();
             el.Setup(x => x.Name).Returns(type.Name.Split('`')[0]);
-            el.Setup(x => x.FullName).Returns(type.FullName); 
+            el.Setup(x => x.FullName).Returns(fullName); 
             Setup(x => x.Attributes).Returns(new MockAttributes(type.GetCustomAttributes(false).OfType<Attribute>()));
             Setup(x => x.Name).Returns(type.Name.Split('`')[0]);
-            Setup(x => x.FullName).Returns(type.FullName);
+            Setup(x => x.FullName).Returns(fullName);
             Setup(x => x.Members).Returns(new MockCodeProperties(type));
             Setup(x => x.Access).Returns(vsCMAccess.vsCMAccessPublic);
 
@@ -158,12 +161,7 @@ namespace T4TS.Tests.Mocks
     {
         public CodeTypeRefMock(Type propertyType): base(MockBehavior.Strict)
         {
-            var fullName = propertyType.FullName;
-            if (fullName.Contains('`'))
-            {
-                fullName = fullName.Split('`')[0] + '<' + propertyType.GetGenericArguments().Single().FullName + '>';
-            }
-
+            string fullName = DTETransformer.GetTypeFullname(propertyType.FullName);
             Setup(x => x.AsFullName).Returns(fullName);
 
             if (propertyType.IsArray)

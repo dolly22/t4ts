@@ -99,6 +99,8 @@
     <Compile Include="Fixtures\Inheritance\Test.cs" />
     <Compile Include="Fixtures\ExternalProp\ExternalPropModel.cs" />
     <Compile Include="Fixtures\ExternalProp\Test.cs" />
+    <Compile Include="Models\LocalModel.cs" />
+    <Compile Include="Models\ReservedPropModel.cs" />
     <Compile Include="Traversal\Models\ReservedPropModel.cs" />
     <Compile Include="Traversal\Models\LocalModel.cs" />
     <Compile Include="Mocks\BaseList.cs" />

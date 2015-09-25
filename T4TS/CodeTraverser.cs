@@ -474,8 +474,7 @@ namespace T4TS
                 if (values.ContainsKey("Ignore") && bool.TryParse(values["Ignore"], out parsedProperty))
                     attributeIgnore = parsedProperty;
 
-                if (!values.TryGetValue("Name", out attributeName))
-                    attributeName = property.Name;
+                values.TryGetValue("Name", out attributeName);
                 values.TryGetValue("Type", out attributeType);
             }
 
