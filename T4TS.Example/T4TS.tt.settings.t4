@@ -39,7 +39,8 @@ readonly Dictionary<string, object> SettingsValues = new Dictionary<string, obje
     // Type: bool?, defaults to false if not specified.
     { "UseNativeDates", null },
 
-
+	// List of the project names to process. If null - all the projects will be processed.
+	{ "ProjectNamesToProcess", "T4TS.Example" },
 
     // If equals true - classes marked with DataContractAttribute will be processed.
     // Type: bool?, defaults to false if not specified.
