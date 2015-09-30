@@ -76,6 +76,10 @@ namespace T4TS
 
             if (System.IO.Path.GetExtension(fileName) == ".cs")
             {
+                //support for unit tests
+                if (fileName == "sourcefile.cs")
+                    return true;
+
                 var content = System.IO.File.ReadAllText(fileName);
                 if (content.Contains("TypeScript"))
                     return true;

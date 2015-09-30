@@ -59,6 +59,8 @@ namespace T4TS.Tests.Mocks
             Setup(x => x.Bases).Returns(new CodeElemens<CodeElement>());
             Setup(x => x.Members).Returns(new MockCodeVariables(type));
             Setup(x => x.Access).Returns(vsCMAccess.vsCMAccessPublic);
+            Setup(x => x.Comment).Returns(string.Empty);
+            Setup(x => x.DocComment).Returns(string.Empty);
         }
     }
 
@@ -219,6 +221,8 @@ namespace T4TS.Tests.Mocks
             Setup(x => x.Attributes).Returns(new MockAttributes(fi.GetCustomAttributes()));
             Setup(x => x.Access).Returns(vsCMAccess.vsCMAccessPublic);
             Setup(x => x.InitExpression).Returns(((int)fi.GetValue(null)).ToString());
+            Setup(x => x.Comment).Returns(string.Empty);
+            Setup(x => x.DocComment).Returns(string.Empty);
         }
     }
 

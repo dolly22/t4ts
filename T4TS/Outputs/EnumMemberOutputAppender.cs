@@ -17,7 +17,7 @@ namespace T4TS
         {
             AppendDocumentation(member);
             AppendIndendation();
-            
+
             Output.AppendFormat("{0} = {1}",
                 member.Name,
                 member.Value

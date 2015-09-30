@@ -17,6 +17,7 @@ namespace T4TS.Tests.Mocks
         {
             var project = new Mock<Project>(MockBehavior.Strict);
             project.Setup(x => x.ProjectItems).Returns(new MockProjectItems(types));
+            project.Setup(x => x.Kind).Returns(Constants.vsProjectKindMisc);
             Add(project.Object);
         }
     }

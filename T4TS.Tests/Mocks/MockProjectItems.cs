@@ -1,6 +1,8 @@
 using System;
 using EnvDTE;
 using Moq;
+using System.Collections.Generic;
+using System.Collections;
 
 namespace T4TS.Tests.Mocks
 {
@@ -46,6 +48,7 @@ namespace T4TS.Tests.Mocks
             projectItem.Setup(x => x.FileCodeModel).Returns(fileCodeModel.Object);
             projectItem.Setup(x => x.ProjectItems).Returns((ProjectItems)null);
             projectItem.Setup(x => x.SubProject).Returns((Project)null);
+            projectItem.Setup(x => x.get_FileNames(It.Is<short>(i => true))).Returns("sourcefile.cs");
             Add(projectItem.Object);
         }
     }

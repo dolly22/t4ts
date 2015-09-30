@@ -67,7 +67,6 @@ namespace T4TS
                 AppendIndendation();
                 AppendDocumentation(tsEnum);
 
-                AppendIndendation();
                 AppendIndented("enum " + enumName);
 
             }
