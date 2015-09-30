@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>T4TS</id>
+        <authors>Christoffer Skeppstedt,Nils Edström</authors>
+        <owners>Christoffer Skeppstedt,Nils Edström</owners>
+        <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+        <projectUrl>https://github.com/cskeppstedt/t4ts</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>T4 template to generate TypeScript interface definitions</description>
+        <tags>t4 TypeScript</tags>
+    </metadata>
+    <files>
+      <file src="build\T4TS.tt" target="Content\T4TS.tt" />
+      <file src="build\T4TS.tt.settings.t4" target="Content\T4TS.tt.settings.t4" />
+      <file src="build\T4TS.Attributes.dll" target="lib\net20\T4TS.Attributes.dll" />
+    </files>
+</package>
