@@ -3,7 +3,7 @@ using System.Text;
 
 namespace T4TS
 {
-    public class MemberOutputAppender : OutputAppender<TypeScriptInterfaceMember>
+    public class MemberOutputAppender : DocumentedOutputAppender<TypeScriptInterfaceMember>
     {
         public MemberOutputAppender(StringBuilder output, int baseIndentation, Settings settings)
             : base(output, baseIndentation, settings)
@@ -12,10 +12,7 @@ namespace T4TS
 
         public override void AppendOutput(TypeScriptInterfaceMember member)
         {
-            //replace NewLine characters, so multiline comments will align nicely, and don't stick to the begining of the lines...
-            if(!string.IsNullOrWhiteSpace(member.Comment)) { AppendIndentedLine("/**  " + member.Comment.Replace(Environment.NewLine, Environment.NewLine + new string(' ', BaseIndentation) + "* ") + " */"); }
-            if(!string.IsNullOrWhiteSpace(member.DocComment)) { AppendIndentedLine("/**  " + member.DocComment.Replace(Environment.NewLine, Environment.NewLine + new string(' ', BaseIndentation) + "* ") + " */"); }
-
+            AppendDocumentation(member);
             AppendIndendation();
 
             var isOptional = member.Optional || (member.Type is NullableType);

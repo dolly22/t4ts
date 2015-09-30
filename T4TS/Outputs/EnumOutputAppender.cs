@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace T4TS
 {
-    public class EnumOutputAppender : OutputAppender<TypeScriptEnum>
+    public class EnumOutputAppender : DocumentedOutputAppender<TypeScriptEnum>
     {
         public EnumOutputAppender(StringBuilder output, int baseIndentation, Settings settings)
             : base(output, baseIndentation, settings)
@@ -46,8 +46,10 @@ namespace T4TS
         private void BeginInterface(TypeScriptEnum tsEnum, TypeScriptInterface owner = null)
         {
             AppendIndentedLine("/** Generated from " + tsEnum.FullName + " **/");
+            
             if (owner == null)
             {
+                AppendDocumentation(tsEnum);
                 AppendIndented("enum " + tsEnum.Name);
             }
             else
@@ -61,6 +63,10 @@ namespace T4TS
                     enumName = arr[1];
                 }
                 AppendIndentedLine("export module " + module + " {");
+
+                AppendIndendation();
+                AppendDocumentation(tsEnum);
+
                 AppendIndendation();
                 AppendIndented("enum " + enumName);
 

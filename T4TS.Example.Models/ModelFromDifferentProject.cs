@@ -6,10 +6,16 @@ namespace T4TS.Example.Models
     [TypeScriptInterface(Module="External1")]
     public class ModelFromDifferentProject
     {
+        /// <summary>
+        /// Comment for enum
+        /// </summary>
         public enum TestEnum
         {
             [TypeScriptMember(Name = "TheItem1")]
             Item1 = 1,
+            /// <summary>
+            /// Comment for enum value
+            /// </summary>
             Item2 = 2,
             Item21,
             Item22,

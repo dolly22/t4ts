@@ -7,7 +7,7 @@ using EnvDTE;
 
 namespace T4TS
 {
-    public class TypeScriptEnum
+    public class TypeScriptEnum : IDocumentedElement
     {
         public string Name { get; set; }
         public string FullName { get; set; }
@@ -15,6 +15,9 @@ namespace T4TS
         public List<TypeScriptEnumMember> Members { get; set; }
         public TypeScriptModule Module { get; set; }
         public TypeScriptInterface Owner { get; set; }
+
+        public string Comment { get; set; }
+        public string DocComment { get; set; }
 
         public TypeScriptEnum()
         {

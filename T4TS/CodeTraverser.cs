@@ -292,7 +292,9 @@ namespace T4TS
             var tsEnum = new TypeScriptEnum
             {
                 FullName = codeEnum.FullName,
-                Name = GetEnumName(attributeValues)
+                Name = GetEnumName(attributeValues),
+                Comment = codeEnum.Comment,
+                DocComment = codeEnum.DocComment
             };
 
             new EnumTraverser(codeEnum, (variable, index) =>
@@ -427,6 +429,8 @@ namespace T4TS
                 FullName = variable.FullName,
                 Ignore = values.Ignore,
                 Value = variable.InitExpression == null ? index : Int32.Parse(variable.InitExpression.ToString()),
+                Comment = variable.Comment,
+                DocComment = variable.DocComment
             };
 
             if (member.Name == null)

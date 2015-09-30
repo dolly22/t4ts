@@ -4,26 +4,63 @@
 
 // -- Begin global interfaces
     /** Generated from T4TS.Example.Models.Barfoo **/
-    /**  <summary>
-    * Barfoo has some comments!
-    * <example>var bar = new Barfoo();</example>
-    * </summary> */
+    /**  Barfoo has some comments!
+    * var bar = new Barfoo(); */
     interface Barfoo {
-        /**  <summary>
-        * Well, this is a number
+        /**  Well, this is a number
         * And has multiple lines of comment
-        * "Nicely" formated
-        * </summary> */
+        * "Nicely" formated */
         Number: number;
-        /**  <summary>
-        * Okay, this has a single line of comment
-        * </summary> */
+        /**  Okay, this has a single line of comment */
         Complex: T4TS.OverridenName;
         Name: string;
         DateTime: string;
         aValue: { [name: string]: any};
     }
 // -- End global interfaces
+
+declare module External1 {
+    /** Generated from T4TS.Example.Models.ModelFromDifferentProject.TestEnum **/
+    export module ModelFromDifferentProject {
+        /**  Comment for enum */
+        enum TestEnum {
+            TheItem1 = 1,
+            /**  Comment for enum value */
+            Item2 = 2,
+            Item21 = 3,
+            Item22 = 4,
+            Item23 = 5,
+            Item3 = 5,
+            Item4 = 6,
+        }
+    }
+    /** Generated from T4TS.Example.Models.ModelFromDifferentProject.SubClass **/
+    export module ModelFromDifferentProject {
+        export interface TestSubClass {
+            Id: number;
+            Name: string;
+        }
+    }
+    /** Generated from T4TS.Example.Models.ModelFromDifferentProject **/
+    export interface ModelFromDifferentProject {
+        Id: number;
+        Name: string;
+        Date: string;
+        DatesList: string[];
+        DatesArray: string[];
+        RefObject: any;
+        IntArray: number[];
+        SelfArray: External1.ModelFromDifferentProject[];
+        IsVisible: boolean;
+        IsOptional?: boolean;
+        IntOptional?: number;
+        Self: External1.ModelFromDifferentProject;
+        EnumProp: External1.ModelFromDifferentProject.TestEnum;
+        EnumPropNull?: External1.ModelFromDifferentProject.TestEnum;
+        EnumArray: External1.ModelFromDifferentProject.TestEnum[];
+        SubClassRef: External1.ModelFromDifferentProject.TestSubClass;
+    }
+}
 
 declare module Fooz {
     /** Generated from T4TS.Example.Models.Foobar **/
@@ -64,7 +101,7 @@ declare module T4TS {
         Recursive4: Fooz.IFoobar;
     }
     /** Generated from T4TS.Example.Models.InheritanceTestExternal **/
-    export interface InheritanceTestExternal {
+    export interface InheritanceTestExternal extends External1.ModelFromDifferentProject {
     }
     /** Generated from T4TS.Example.Models.Inherited **/
     export interface OverridenName {
@@ -76,11 +113,15 @@ declare module T4TS {
     }
     /** Generated from T4TS.Example.Models.Partial **/
     export interface Partial {
-        FromFirstClass: string;
-    }
-    /** Generated from T4TS.Example.Models.Partial **/
-    export interface Partial {
         FromSecondClass: string;
         AlsoSecondClass?: boolean;
+    }
+    /** Generated from T4TS.Example.Models.SimpleTest **/
+    export interface SimpleTest {
+        Public: number;
+        Protected: number;
+        Internal: number;
+        Private: number;
+        PublicStatic: number;
     }
 }

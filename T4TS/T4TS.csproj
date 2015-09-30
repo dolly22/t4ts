@@ -45,8 +45,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Outputs\DocumentedOutputAppender.cs" />
     <Compile Include="Outputs\EnumOutputAppender.cs" />
     <Compile Include="Outputs\EnumMemberOutputAppender.cs" />
+    <Compile Include="Outputs\IDocumentedElement.cs" />
     <Compile Include="Outputs\OutputAppender.cs" />
     <Compile Include="Outputs\InterfaceOutputAppender.cs" />
     <Compile Include="Outputs\MemberOutputAppender.cs" />
