@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace T4TS.Tests
 {
-    [TestClass]
+    //[TestClass]
     public partial class MemberOutputAppenderTests
     {
         [TestMethod]

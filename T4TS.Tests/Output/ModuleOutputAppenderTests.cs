@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace T4TS.Tests
 {
-    [TestClass]
+    //[TestClass]
     public class ModuleOutputAppenderTests
     {
         [TestMethod]
