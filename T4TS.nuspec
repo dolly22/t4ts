@@ -2,6 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>T4TS</id>
+        <version>2.3.1</version>
         <authors>Christoffer Skeppstedt,Nils Edström</authors>
         <owners>Christoffer Skeppstedt,Nils Edström</owners>
         <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
