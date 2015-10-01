@@ -60,7 +60,44 @@ Project GetProjectContainingT4File(DTE dte) {
     return projectItem.ContainingProject;
 }
 
-    public class EnumOutputAppender : OutputAppender<TypeScriptEnum>
+    public abstract class DocumentedOutputAppender<TSegment> : OutputAppender<TSegment>
+        where TSegment : class, IDocumentedElement
+    {
+        public DocumentedOutputAppender(StringBuilder output, int baseIndentation, Settings settings)
+            : base(output, baseIndentation, settings)
+        {
+        }
+
+        protected void AppendDocumentation(TSegment element)
+        {
+            var comment = SanitizeComment(element.Comment);
+            var docComment = SanitizeComment(element.DocComment);
+
+            if (!string.IsNullOrWhiteSpace(comment))
+                AppendIndentedLine(FormatComment(comment));
+
+            if (!string.IsNullOrWhiteSpace(docComment))
+                AppendIndentedLine(FormatComment(docComment));
+        }
+
+        private string FormatComment(string commentText)
+        {
+            return string.Concat(
+                "/**  ",
+                commentText.Replace(Environment.NewLine, Environment.NewLine + new string(' ', BaseIndentation) + "* "),
+                " */");
+        }
+
+        private string SanitizeComment(string commentText)
+        {
+            if (string.IsNullOrEmpty(commentText))
+                return null;
+
+            return System.Text.RegularExpressions.Regex.Replace(commentText, @"<[^>]+>", "").Trim();
+        }
+    }
+
+    public class EnumOutputAppender : DocumentedOutputAppender<TypeScriptEnum>
     {
         public EnumOutputAppender(StringBuilder output, int baseIndentation, Settings settings)
             : base(output, baseIndentation, settings)
@@ -100,8 +137,10 @@ Project GetProjectContainingT4File(DTE dte) {
         private void BeginInterface(TypeScriptEnum tsEnum, TypeScriptInterface owner = null)
         {
             AppendIndentedLine("/** Generated from " + tsEnum.FullName + " **/");
+            
             if (owner == null)
             {
+                AppendDocumentation(tsEnum);
                 AppendIndented("enum " + tsEnum.Name);
             }
             else
@@ -115,7 +154,10 @@ Project GetProjectContainingT4File(DTE dte) {
                     enumName = arr[1];
                 }
                 AppendIndentedLine("export module " + module + " {");
+
                 AppendIndendation();
+                AppendDocumentation(tsEnum);
+
                 AppendIndented("enum " + enumName);
 
             }
@@ -135,7 +177,7 @@ Project GetProjectContainingT4File(DTE dte) {
 
     }
 
-    public class EnumMemberOutputAppender : OutputAppender<TypeScriptEnumMember>
+    public class EnumMemberOutputAppender : DocumentedOutputAppender<TypeScriptEnumMember>
     {
         public EnumMemberOutputAppender(StringBuilder output, int baseIndentation, Settings settings)
             : base(output, baseIndentation, settings)
@@ -144,6 +186,7 @@ Project GetProjectContainingT4File(DTE dte) {
 
         public override void AppendOutput(TypeScriptEnumMember member)
         {
+            AppendDocumentation(member);
             AppendIndendation();
 
             Output.AppendFormat("{0} = {1}",
@@ -153,6 +196,13 @@ Project GetProjectContainingT4File(DTE dte) {
             
             Output.AppendLine(",");
         }
+    }
+
+    public interface IDocumentedElement
+    {
+        string Comment { get; }
+
+        string DocComment { get; }
     }
 
     public abstract class OutputAppender<TSegment> where TSegment: class
@@ -199,7 +249,7 @@ Project GetProjectContainingT4File(DTE dte) {
         }
     }
 
-    public class InterfaceOutputAppender : OutputAppender<TypeScriptInterface>
+    public class InterfaceOutputAppender : DocumentedOutputAppender<TypeScriptInterface>
     {
         private bool InGlobalModule { get; set; }
 
@@ -269,10 +319,7 @@ Project GetProjectContainingT4File(DTE dte) {
         private void BeginInterface(TypeScriptInterface tsInterface, TypeScriptInterface owner = null)
         {
             AppendIndentedLine("/** Generated from " + tsInterface.FullName + " **/");
-			
-            //replace NewLine characters, so multiline comments will align nicely, and don't stick to the begining of the lines...
-            if(!string.IsNullOrWhiteSpace(tsInterface.Comment)) { AppendIndentedLine("/**  " + tsInterface.Comment.Replace(Environment.NewLine, Environment.NewLine + new string(' ', BaseIndentation) + "* ") + " */"); }
-            if(!string.IsNullOrWhiteSpace(tsInterface.DocComment)) { AppendIndentedLine("/**  " + tsInterface.DocComment.Replace(Environment.NewLine, Environment.NewLine + new string(' ', BaseIndentation) + "* ") + " */"); }
+            AppendDocumentation(tsInterface);
 
             if (owner == null)
             {
@@ -321,7 +368,7 @@ Project GetProjectContainingT4File(DTE dte) {
         }
     }
 
-    public class MemberOutputAppender : OutputAppender<TypeScriptInterfaceMember>
+    public class MemberOutputAppender : DocumentedOutputAppender<TypeScriptInterfaceMember>
     {
         public MemberOutputAppender(StringBuilder output, int baseIndentation, Settings settings)
             : base(output, baseIndentation, settings)
@@ -330,10 +377,7 @@ Project GetProjectContainingT4File(DTE dte) {
 
         public override void AppendOutput(TypeScriptInterfaceMember member)
         {
-            //replace NewLine characters, so multiline comments will align nicely, and don't stick to the begining of the lines...
-            if(!string.IsNullOrWhiteSpace(member.Comment)) { AppendIndentedLine("/**  " + member.Comment.Replace(Environment.NewLine, Environment.NewLine + new string(' ', BaseIndentation) + "* ") + " */"); }
-            if(!string.IsNullOrWhiteSpace(member.DocComment)) { AppendIndentedLine("/**  " + member.DocComment.Replace(Environment.NewLine, Environment.NewLine + new string(' ', BaseIndentation) + "* ") + " */"); }
-
+            AppendDocumentation(member);
             AppendIndendation();
 
             var isOptional = member.Optional || (member.Type is NullableType);
@@ -426,7 +470,7 @@ Project GetProjectContainingT4File(DTE dte) {
         }
     }
 
-    public class TypeScriptEnum
+    public class TypeScriptEnum : IDocumentedElement
     {
         public string Name { get; set; }
         public string FullName { get; set; }
@@ -434,6 +478,9 @@ Project GetProjectContainingT4File(DTE dte) {
         public List<TypeScriptEnumMember> Members { get; set; }
         public TypeScriptModule Module { get; set; }
         public TypeScriptInterface Owner { get; set; }
+
+        public string Comment { get; set; }
+        public string DocComment { get; set; }
 
         public TypeScriptEnum()
         {
@@ -455,12 +502,15 @@ Project GetProjectContainingT4File(DTE dte) {
         public string NamePrefix { get; set; }
     }
 
-    public class TypeScriptEnumMember
+    public class TypeScriptEnumMember : IDocumentedElement
     {
         public string Name { get; set; }
         public string FullName { get; set; }
         public int Value { get; set; }
         public bool Ignore { get; set; }
+
+        public string Comment { get; set; }
+        public string DocComment { get; set; }
     }
 
     public class TypeScriptMemberAttributeValues
@@ -758,7 +808,9 @@ Project GetProjectContainingT4File(DTE dte) {
             var tsEnum = new TypeScriptEnum
             {
                 FullName = codeEnum.FullName,
-                Name = GetEnumName(attributeValues)
+                Name = GetEnumName(attributeValues),
+                Comment = codeEnum.Comment,
+                DocComment = codeEnum.DocComment
             };
 
             new EnumTraverser(codeEnum, (variable, index) =>
@@ -893,6 +945,8 @@ Project GetProjectContainingT4File(DTE dte) {
                 FullName = variable.FullName,
                 Ignore = values.Ignore,
                 Value = variable.InitExpression == null ? index : Int32.Parse(variable.InitExpression.ToString()),
+                Comment = variable.Comment,
+                DocComment = variable.DocComment
             };
 
             if (member.Name == null)
@@ -1237,6 +1291,8 @@ Project GetProjectContainingT4File(DTE dte) {
 
     public class ProjectTraverser
     {
+        static readonly Guid SolutionItemKind = Guid.Parse(Constants.vsProjectKindSolutionItems);
+
         public Action<CodeNamespace> WithNamespace { get; private set; }
 
         public ProjectTraverser(Project project, Action<CodeNamespace> withNamespace)
@@ -1256,8 +1312,8 @@ Project GetProjectContainingT4File(DTE dte) {
         {
             if (project.ProjectItems != null)
             {
-                // solution items
-                if (Guid.Parse(project.Kind) == Guid.Parse(Constants.vsProjectKindSolutionItems))
+                // traverse projects inside solution items
+                if (Guid.Parse(project.Kind) == SolutionItemKind)
                 {
                     foreach (ProjectItem pi in project.ProjectItems)
                     {
@@ -1304,6 +1360,10 @@ Project GetProjectContainingT4File(DTE dte) {
 
             if (System.IO.Path.GetExtension(fileName) == ".cs")
             {
+                //support for unit tests
+                if (fileName == "sourcefile.cs")
+                    return true;
+
                 var content = System.IO.File.ReadAllText(fileName);
                 if (content.Contains("TypeScript"))
                     return true;
@@ -1884,26 +1944,13 @@ Project GetProjectContainingT4File(DTE dte) {
         }
     }
 
-    public class TypeScriptInterface
+    public class TypeScriptInterface : IDocumentedElement
     {
         public string Name { get; set; }
         public string FullName { get; set; }
         
         public string Comment { get; set; }
-
-        private string _docComment;
-        public string DocComment {
-          get { return _docComment; }
-          set {
-            _docComment = value;
-            if(value == null) { return; }
-            //strip the '<doc> </doc>' xml tags
-            if(value.StartsWith("<doc>") && value.EndsWith("</doc>")) {
-              _docComment = value.Substring(5, value.Length - 11).Trim();
-            } else { _docComment = value; }
-          }
-        }
-
+        public string DocComment { get; set; }
         public List<TypeScriptInterfaceMember> Members { get; set; }
         public TypescriptType IndexedType { get; set; }
         public TypeScriptInterface Parent { get; set; }
@@ -1922,24 +1969,12 @@ Project GetProjectContainingT4File(DTE dte) {
         }
     }
 
-    public class TypeScriptInterfaceMember
+    public class TypeScriptInterfaceMember : IDocumentedElement
     {
         public string Name { get; set; }
 
         public string Comment { get; set; }
-
-        private string _docComment;
-        public string DocComment {
-          get { return _docComment; }
-          set {
-            _docComment = value;
-            if(value == null) { return; }
-            //strip the '<doc> </doc>' xml tags
-            if(value.StartsWith("<doc>") && value.EndsWith("</doc>")) {
-              _docComment = value.Substring(5, value.Length - 11).Trim();
-            } else { _docComment = value; }
-          }
-        }
+        public string DocComment { get; set; }
         public TypescriptType Type { get; set; }
         public bool Optional { get; set; }
         //public string FullName { get; set; }

@@ -13,6 +13,11 @@ namespace T4TS.Build.Builder
            Classes.Add(node.ToString());
         }
 
+        public override void VisitInterfaceDeclaration(InterfaceDeclarationSyntax node)
+        {
+            Classes.Add(node.ToString());
+        }
+
         public void Clear()
         {
             Classes.Clear();
