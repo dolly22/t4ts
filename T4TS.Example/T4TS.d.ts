@@ -23,7 +23,7 @@ declare module External1 {
     /** Generated from T4TS.Example.Models.ModelFromDifferentProject.TestEnum **/
     export module ModelFromDifferentProject {
         /**  Comment for enum */
-        enum TestEnum {
+    enum TestEnum {
             TheItem1 = 1,
             /**  Comment for enum value */
             Item2 = 2,

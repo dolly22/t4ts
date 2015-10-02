@@ -508,7 +508,6 @@ Project GetProjectContainingT4File(DTE dte) {
         public string FullName { get; set; }
         public int Value { get; set; }
         public bool Ignore { get; set; }
-
         public string Comment { get; set; }
         public string DocComment { get; set; }
     }
@@ -1977,7 +1976,6 @@ Project GetProjectContainingT4File(DTE dte) {
         public string DocComment { get; set; }
         public TypescriptType Type { get; set; }
         public bool Optional { get; set; }
-        //public string FullName { get; set; }
         public bool Ignore { get; set; }
     }
 
