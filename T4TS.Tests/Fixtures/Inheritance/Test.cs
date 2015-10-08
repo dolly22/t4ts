@@ -28,7 +28,7 @@ const string ExpectedOutput = @"
 declare module External1 {
     /** Generated from T4TS.Example.Models.ModelFromDifferentProject+TestEnum **/
     export module ModelFromDifferentProject {
-        enum TestEnum {
+        const enum TestEnum {
             TheItem1 = 1,
             Item2 = 2,
             Item21 = 3,

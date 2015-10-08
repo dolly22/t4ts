@@ -50,7 +50,7 @@ namespace T4TS
             if (owner == null)
             {
                 AppendDocumentation(tsEnum);
-                AppendIndented("enum " + tsEnum.Name);
+                AppendIndented("const enum " + tsEnum.Name);
             }
             else
             {
@@ -67,7 +67,7 @@ namespace T4TS
                 AppendIndendation();
                 AppendDocumentation(tsEnum);
 
-                AppendIndented("enum " + enumName);
+                AppendIndented("const enum " + enumName);
 
             }
             Output.AppendLine(" {");

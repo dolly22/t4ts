@@ -141,7 +141,7 @@ Project GetProjectContainingT4File(DTE dte) {
             if (owner == null)
             {
                 AppendDocumentation(tsEnum);
-                AppendIndented("enum " + tsEnum.Name);
+                AppendIndented("const enum " + tsEnum.Name);
             }
             else
             {
@@ -158,7 +158,7 @@ Project GetProjectContainingT4File(DTE dte) {
                 AppendIndendation();
                 AppendDocumentation(tsEnum);
 
-                AppendIndented("enum " + enumName);
+                AppendIndented("const enum " + enumName);
 
             }
             Output.AppendLine(" {");
